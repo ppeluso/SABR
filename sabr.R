@@ -44,5 +44,5 @@ tit <- list(
 smile <- data.frame(ink, strike)
 p <- ggplot(smile, aes(x = strike, y = ink)) +
   geom_line(colour="red", linetype="dashed", size=1.5) +
-  xlab("Strike") + ylab("Implied Volatility") + ggtitle("/KC Volatility Smile")
+  xlab("Strike") + ylab("Implied Volatility") + ggtitle("/KC Volatility Smile (AUG 12 16 Puts)")
 print(p)

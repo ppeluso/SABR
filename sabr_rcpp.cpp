@@ -31,6 +31,9 @@ double callPriceBS(const double S, const double K, const double T, const double 
 double putPriceBS(const double S, const double K, const double T, const double r, const double sigma);
 double callImpliedVol(const double S, const double K, const double T, const double r, const double market);
 double putImpliedVol(const double S, const double K, const double T, const double r, const double market);
+double box_mueller(double sigma = 1, double mu = 0 );
+double callPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma);
+double putPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma); 
 int main()
 {
 
@@ -155,7 +158,65 @@ double putImpliedVol(const double S, const double K, const double T, const doubl
   return x; 
   
 }
-
+// [[Rcpp::export]]
+double box_mueller(double sigma, double mu)
+{
+  const double epsilon = std::numeric_limits<double>::min();
+  const double two_pi = 2.0*PI;
+  
+  static double z0, z1;
+  static bool generate;
+  generate = !generate;
+  
+  if (!generate)
+    return z1 * sigma + mu;
+  
+  double u1, u2;
+  do
+  {
+    u1 = rand() * (1.0 / RAND_MAX);
+    u2 = rand() * (1.0 / RAND_MAX);
+  }
+  while ( u1 <= epsilon );
+  
+  z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
+  z1 = sqrt(-2.0 * log(u1)) * sin(two_pi * u2);
+  return z0 * sigma + mu ;
+}
+// [[Rcpp::export]]
+double callPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma)
+{
+  double t = T/ (double)252.0 ;
+  double S_adjust = S * exp(t*(r-0.5*sigma*sigma));
+  double S_cur = 0.0;
+  double payoff = 0.0; 
+  
+  for(int i = 0; i < sims; i++)
+  {
+    double randNorm = box_mueller();
+    S_cur = S_adjust * exp(sqrt(sigma*sigma*t)* randNorm);
+    payoff += std::max(S_cur - K, 0.0);
+  }
+  
+  return (payoff/ static_cast<double>(sims)) * exp(-r*t);
+}
+// [[Rcpp::export]]
+double putPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma)
+{
+  double t = T/ (double)252.0 ;
+  double S_adjust = S * exp(t*(r-0.5*sigma*sigma));
+  double S_cur = 0.0;
+  double payoff = 0.0; 
+  
+  for(int i = 0; i < sims; i++)
+  {
+    double randNorm = box_mueller();
+    S_cur = S_adjust * exp(sqrt(sigma*sigma*t)* randNorm);
+    payoff += std::max(K - S_cur, 0.0);
+  }
+  
+  return (payoff/ static_cast<double>(sims)) * exp(-r*t);
+}
 
 
 // You can include R code blocks in C++ files processed with sourceCpp
@@ -163,39 +224,4 @@ double putImpliedVol(const double S, const double K, const double T, const doubl
 // run after the compilation.
 //
 
- /*** R
 
-library(Rcpp)
-library(ggplot2)
-sourceCpp("/Users/peterpeluso/holydata/f.cpp")
-ink <- c()
-strike <- c()
-put_price <- c()
-
-strike[1] <- 137.50
-strike[2] <- 140.00 
-strike[3] <- 142.50 
-strike[4] <- 145.00 
-strike[5] <- 147.50 
-strike[6] <- 150.00 
-strike[7] <- 152.50 
-
-put_price[1] <- 2.69
-put_price[2] <- 3.80
-put_price[3] <- 5.20
-put_price[4] <- 6.80
-put_price[5] <- 8.65
-put_price[6] <- 12.80
-put_price[7] <- 
-for(i in 1 : 7)
-{
-ink[i] <- (putImpliedVol(141.15, strike[i], 21, .017, put_price[i]))
-}
-
-
-smile <- data.frame(ink, strike)
-p <- ggplot(smile, aes(x = strike, y = ink)) +
-  geom_line(colour="red", linetype="dashed", size=1.5) +
-  xlab("Strike") + ylab("Implied Volatility") + ggtitle("/KC Volatility Smile")
-
- */
