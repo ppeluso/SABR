@@ -45,4 +45,20 @@ smile <- data.frame(ink, strike)
 p <- ggplot(smile, aes(x = strike, y = ink)) +
   geom_line(colour="red", linetype="dashed", size=1.5) +
   xlab("Strike") + ylab("Implied Volatility") + ggtitle("/KC Volatility Smile (AUG 12 16 Puts)")
-print(p)
+
+price  <- seq(120, 160, 1)
+
+KC_delta <-c()
+KC_calldelta <-c()
+for(i in 1: length(price))
+{
+  KC_delta[i]  <- putDeltaBS(price[i], 142.50, 21, .017, .275)
+  KC_calldelta[i] <- callDeltaBS(price[i], 142.50, 21, .017, .275)
+}
+
+KCd <- data.frame(price, KC_delta)
+KCdel <- ggplot(KCd, aes(x = price, y = KC_delta))  +
+  geom_line(colour="red", linetype="F1", size=1.5) + 
+  xlab("Price") + ylab("Delta") + ggtitle("Delta of /KC ATM Put")
+
+print(KCdel)

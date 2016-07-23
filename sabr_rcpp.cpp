@@ -3,6 +3,7 @@
 #include <algorithm> 
 #include <cmath>
 #include <vector> 
+#include <limits>
 #define PI 3.14159265359
 
 //using namespace Rcpp;
