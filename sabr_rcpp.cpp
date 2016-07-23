@@ -1,11 +1,11 @@
-#include <Rcpp.h>
+// #include <Rcpp.h>
 #include <iostream>
 #include <algorithm> 
 #include <cmath>
 #include <vector> 
 #define PI 3.14159265359
 
-using namespace Rcpp;
+//using namespace Rcpp;
 
 // This is a simple example of exporting a C++ function to R. You can
 // source this function into an R session using the Rcpp::sourceCpp 
@@ -33,9 +33,18 @@ double callImpliedVol(const double S, const double K, const double T, const doub
 double putImpliedVol(const double S, const double K, const double T, const double r, const double market);
 double box_mueller(double sigma = 1, double mu = 0 );
 double callPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma);
-double putPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma); 
+double putPriceMonteCarlo(double sims, double S, double K, double T, double r, double sigma);
+double callDeltaBS(const double S, const double K, const double T, const double r, const double sigma);
+double putDeltaBS(const double S, const double K, const double T, const double r, const double sigma); 
+double callGammaBS(const double S, const double K, const double T, const double r, const double sigma);
+double putGammaBS(const double S, const double K, const double T, const double r, const double sigma);
+double callVegaBS(const double S, const double K, const double T, const double r, const double sigma);
+double putVegaBS(const double S, const double K, const double T, const double r, const double sigma);
+double callThetaBS(const double S, const double K, const double T, const double r, const double sigma);
+double putThetaBS(const double S, const double K, const double T, const double r, const double sigma);
 int main()
 {
+
 
 
   return 0; 
@@ -218,6 +227,55 @@ double putPriceMonteCarlo(double sims, double S, double K, double T, double r, d
   return (payoff/ static_cast<double>(sims)) * exp(-r*t);
 }
 
+// [[Rcpp::export]]
+double callDeltaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+  return norm_cdf(d_1(S,K,T,r,sigma));
+
+}
+// [[Rcpp::export]]
+double putDeltaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+  return norm_cdf(d_1(S,K,T,r,sigma)) - 1; 
+}
+// [[Rcpp::export]]
+double callGammaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+    double t = T/ (double)252.0 ;
+  return (norm_pdf(d_1(S,K,T,r,sigma)))/(S * sigma * sqrt(t));
+}
+// [[Rcpp::export]]
+double putGammaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+    double t = T/ (double)252.0 ;
+  return (norm_pdf(d_1(S,K,T,r,sigma)))/(S * sigma * sqrt(t));
+}
+// [[Rcpp::export]]
+double callVegaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+  double t = T/ (double)252.0 ;
+  return S * norm_pdf(d_1(S,K,T,r,sigma)) * sqrt(t);
+}
+// [[Rcpp::export]]
+double putVegaBS(const double S, const double K, const double T, const double r, const double sigma)
+{
+  double t = T/ (double)252.0 ;
+  return S * norm_pdf(d_1(S,K,T,r,sigma)) * sqrt(t);
+}
+// [[Rcpp::export]]
+double callThetaBS(const double S, const double K, const double T, const double r, const double sigma) 
+{
+  double t = T/ (double)252.0 ;
+  return -(S*norm_pdf(d_1( S, K, T, r, sigma))*sigma)/(2*sqrt(t)) 
+    - r*K*exp(-r*t)*norm_cdf(d_2(S, K, T, r, sigma));
+}
+// [[Rcpp::export]]
+double putThetaBS(const double S, const double K, const double T, const double r, const double sigma) 
+ {
+    double t = T/ (double)252.0 ;
+ return -(S*norm_pdf(d_1(S, K, T, r, sigma))*sigma)/(2*sqrt(t)) 
+    + r*K*exp(-r*t)*norm_cdf(-d_2( S, K, T, r, sigma));
+ }
 
 // You can include R code blocks in C++ files processed with sourceCpp
 // (useful for testing and development). The R code will be automatically 
