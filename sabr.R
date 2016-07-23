@@ -1,4 +1,4 @@
-require(ggplot2)
+
 ink <- c()
 strike <- c()
 put_price <- c()
@@ -61,4 +61,71 @@ KCdel <- ggplot(KCd, aes(x = price, y = KC_delta))  +
   geom_line(colour="red", linetype="F1", size=1.5) + 
   xlab("Price") + ylab("Delta") + ggtitle("Delta of /KC ATM Put")
 
-print(KCdel)
+#print(KCdel)
+
+spy <- data_download
+ex <-c()
+srt <- c()
+price <- c(
+)
+for(i in 1: 3228)
+{
+  if(spy$call.put[i] == "P")
+  {
+  ex[i] <- as.numeric(as.Date(spy$expiration[i], format="%m/%d/%Y") - as.Date(spy$date[i], format="%m/%d/%Y"))
+  srt[i] <- as.numeric(spy$strike[i])
+  price[i] <- as.numeric((spy$ask[i] + spy$bid[i]) /2 )
+  }
+}
+
+ex <- ex[!is.na(ex)]
+srt<- srt[!is.na(srt)]
+price  <- price[!is.na(price)]
+longiv <- c()
+
+BS <-
+  function(S,K,T,r,sig,type = "C"){
+    d1 <- (log(S/K) + (r + sig^2/2)*T) / (sig *sqrt(T))
+    d2 <- d1 -sig * sqrt(T)
+    
+    if(type=="C")
+    {
+      value <- S*pnorm(d1) - K *exp(-r*T)* pnorm(d2)
+    }
+    
+    if(type=="P")
+    {
+      value <- K*exp(-r*T)*pnorm(-d2)-S*pnorm(-d1)
+    }
+    return(value)
+  }
+implied.vol <-
+  function(S, K, T, r, market, type){
+    sig <- 0.20
+    sig.up <- 1
+    sig.down <- 0.001
+    count <-  0
+    err <- BS(S, K, T, r, sig, type) - market 
+  }
+
+
+for(i in 1: length(price))
+{
+  s <- srt[i]
+  e <- ex[i]/252
+  ppp <- price[i]
+  longiv[i] <- implied.vol(211.57, s, e, .017, ppp, 'P')
+  gc()
+  print(i)
+}
+
+for(i in 1 :length(longiv))
+{
+  if( longiv[i] < 0 )
+  {
+    longiv[i] <- longiv[i] * -1
+  }
+}
+s <- interp(srt, ex, longiv)
+persp(s$x, s$y, s$z, xlab = "Strike", ylab = "DTE", zlab = "Implied Volatility", main="SPY Volatility Surface ", sub = "Uses puts on 6/01/15 with close price of $211.57", nticks = 10, ticktype ="detailed")
+

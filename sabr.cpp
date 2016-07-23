@@ -194,7 +194,7 @@ double callPriceMonteCarlo(double sims, double S, double K, double T, double r, 
 	double t = T/ (double)252.0 ;
 	double S_adjust = S * exp(t*(r-0.5*sigma*sigma));
 	double S_cur = 0.0;
-	double payoff = 0.0; 
+	double payoff = 0.0;
 
 	for(int i = 0; i < sims; i++)
 	{
@@ -222,3 +222,8 @@ double putPriceMonteCarlo(double sims, double S, double K, double T, double r, d
 
 	return (payoff/ static_cast<double>(sims)) * exp(-r*t);
 }
+
+
+
+
+
