@@ -284,3 +284,24 @@ double putThetaBS(const double S, const double K, const double T, const double r
 //
 
 
+double SABR(const double f, const double K) // f is price and K is strike
+{
+  double alpha; //can use ATM iv 
+  double beta; // can use a known value ex. 1
+
+  double testB; 
+for(int i = 0; i <= 1; i += .001)
+  {
+    testB = log10(alpha) - (1-i)*log10(f)
+
+    if(fabs(testB - log10(alpha)) < .01)
+    {
+      beta = testB; 
+
+      break; 
+    }
+
+  }
+
+
+}

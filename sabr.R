@@ -109,23 +109,24 @@ implied.vol <-
   }
 
 
-for(i in 1: length(price))
-{
-  s <- srt[i]
-  e <- ex[i]/252
-  ppp <- price[i]
-  longiv[i] <- implied.vol(211.57, s, e, .017, ppp, 'P')
-  gc()
-  print(i)
-}
+# for(i in 1: length(price))
+# {
+#   s <- srt[i]
+#   e <- ex[i]/252
+#   ppp <- price[i]
+#   longiv[i] <- implied.vol(211.57, s, e, .017, ppp, 'P')
+#   gc()
+#   print(i)
+# }
+# 
+# for(i in 1 :length(longiv))
+# {
+#   if( longiv[i] < 0 )
+#   {
+#     longiv[i] <- longiv[i] * -1
+#   }
+# }
+# s <- interp(srt, ex, longiv)
+# persp(s$x, s$y, s$z, xlab = "Strike", ylab = "DTE", zlab = "Implied Volatility", main="SPY Volatility Surface ", sub = "Uses puts on 6/01/15 with close price of $211.57", nticks = 10, ticktype ="detailed")
 
-for(i in 1 :length(longiv))
-{
-  if( longiv[i] < 0 )
-  {
-    longiv[i] <- longiv[i] * -1
-  }
-}
-s <- interp(srt, ex, longiv)
-persp(s$x, s$y, s$z, xlab = "Strike", ylab = "DTE", zlab = "Implied Volatility", main="SPY Volatility Surface ", sub = "Uses puts on 6/01/15 with close price of $211.57", nticks = 10, ticktype ="detailed")
 
