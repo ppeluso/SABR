@@ -43,6 +43,8 @@ double callVegaBS(const double S, const double K, const double T, const double r
 double putVegaBS(const double S, const double K, const double T, const double r, const double sigma);
 double callThetaBS(const double S, const double K, const double T, const double r, const double sigma);
 double putThetaBS(const double S, const double K, const double T, const double r, const double sigma);
+double callPriceCRR(const double S, const double K, const double T, const double r, const double sigma, const double div, int N);
+double putPriceCRR(const double S, const double K, const double T, const double r, const double sigma, const double div, int N);
 int main()
 {
 
@@ -304,4 +306,93 @@ for(int i = 0; i <= 1; i += .001)
   }
 
 
+}
+
+double callPriceCRR(const double S, const double K, const double T, const double r, const double sigma, const double div, int N)
+{
+    int i, j ;
+    double prob;
+    double s[200][200] = {0.0};
+    double c[200][200] = {0.0};
+    double a;
+    double num = 0.0;
+    double up = 0.0;
+    double down = 0.0;
+    double dt = 0.0;
+    
+    
+    dt = T/N;
+    up = exp(sigma * sqrt(dt));
+    down = 1/up;
+    a = exp((r - div)* dt);
+    prob = (a- down) / (up - down);
+    
+    for(i = 0; i <= N; i++)
+    {
+        for(j = 0; j <= i; j++)
+        {
+            s[i][j] = S*(pow(up,j)) * pow(down, i-j);
+            c[i][j] = 0;
+        }
+    }
+    
+    for(j = N; j >= 0; j--)
+    {
+        c[N][j] = fmax(s[N][j]- K, 0);
+    }
+    
+    for(i = N-1; i >= 0; i--)
+    {
+        for(j =i; j >= 0; j--)
+        {
+            c[i][j] = exp(-r*dt) *(prob* (c[i+1][j+1]) + (1-prob)* (c[i+1][j]));
+            c[i][j] = fmax(s[i][j] - K, c[i][j]);
+        }
+    }
+    return c[0][0];
+}
+
+double putPriceCRR(const double S, const double K, const double T, const double r, const double sigma, const double div, int N)
+{
+    int i, j ;
+    double prob;
+    double s[200][200] = {0.0};
+    double c[200][200] = {0.0};
+    double a;
+    double num = 0.0;
+    double up = 0.0;
+    double down = 0.0;
+    double dt = 0.0;
+    
+    
+    dt = T/N;
+    up = exp(sigma * sqrt(dt));
+    down = 1/up;
+    a = exp((r - div)* dt);
+    prob = (a- down) / (up - down);
+    
+    for(i = 0; i <= N; i++)
+    {
+        for(j = 0; j <= i; j++)
+        {
+            s[i][j] = S*(pow(up,j)) * pow(down, i-j);
+            c[i][j] = 0;
+        }
+    }
+    
+    for(j = N; j >= 0; j--)
+    {
+        c[N][j] = fmax(K - s[N][j], 0);
+    }
+    
+    for(i = N-1; i >= 0; i--)
+    {
+        for(j =i; j >= 0; j--)
+        {
+            c[i][j] = exp(-r*dt) *(prob* (c[i+1][j+1]) + (1-prob)* (c[i+1][j]));
+            c[i][j] = fmax(K - s[i][j] , c[i][j]);
+        }
+    }
+    return c[0][0];
+    
 }
