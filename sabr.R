@@ -62,26 +62,26 @@ KCdel <- ggplot(KCd, aes(x = price, y = KC_delta))  +
   xlab("Price") + ylab("Delta") + ggtitle("Delta of /KC ATM Put")
 
 #print(KCdel)
-
-spy <- data_download
-ex <-c()
-srt <- c()
-price <- c(
-)
-for(i in 1: 3228)
-{
-  if(spy$call.put[i] == "P")
-  {
-  ex[i] <- as.numeric(as.Date(spy$expiration[i], format="%m/%d/%Y") - as.Date(spy$date[i], format="%m/%d/%Y"))
-  srt[i] <- as.numeric(spy$strike[i])
-  price[i] <- as.numeric((spy$ask[i] + spy$bid[i]) /2 )
-  }
-}
-
-ex <- ex[!is.na(ex)]
-srt<- srt[!is.na(srt)]
-price  <- price[!is.na(price)]
-longiv <- c()
+# 
+# spy <- data_download
+# ex <-c()
+# srt <- c()
+# price <- c(
+# )
+# for(i in 1: 3228)
+# {
+#   if(spy$call.put[i] == "P")
+#   {
+#   ex[i] <- as.numeric(as.Date(spy$expiration[i], format="%m/%d/%Y") - as.Date(spy$date[i], format="%m/%d/%Y"))
+#   srt[i] <- as.numeric(spy$strike[i])
+#   price[i] <- as.numeric((spy$ask[i] + spy$bid[i]) /2 )
+#   }
+# }
+# 
+# ex <- ex[!is.na(ex)]
+# srt<- srt[!is.na(srt)]
+# price  <- price[!is.na(price)]
+# longiv <- c()
 
 BS <-
   function(S,K,T,r,sig,type = "C"){
@@ -129,4 +129,33 @@ implied.vol <-
 # s <- interp(srt, ex, longiv)
 # persp(s$x, s$y, s$z, xlab = "Strike", ylab = "DTE", zlab = "Implied Volatility", main="SPY Volatility Surface ", sub = "Uses puts on 6/01/15 with close price of $211.57", nticks = 10, ticktype ="detailed")
 
+rando <- c()
+count1 <- 0 
+count2 <- 0
+counter <- c()
+counter2 <- c()
+counter3 <- c()
+counter4 <- c()
+for( i in 1: 10000)
+{
+  rando[i] <- box_mueller(1,0)
+  poop <- runif(1)
+  poop2 <- runif(1)
+ if(sqrt((poop*poop) + (poop2*poop2)) < 1)
+ {
+   count1 = count1 + 1 
+   counter[i] <- poop
+   counter2[i] <- poop2
+ }
+  else
+  {
+    counter3[i] <- poop
+    counter4[i] <- poop2
+  }
+  count2 = count2 + 1 
+}
 
+
+histo <- ggplot()  + aes(x = rando)
+
+print(histo + geom_histogram(aes(y = ..density.. , fill = ..count..), binwidth = .2) + geom_density(colour = "black") + scale_fill_gradient("Frequency", low = "green", high = "red") + xlab("Random Number") + ylab("Frequency") + ggtitle("Random Numbers for Monte Carlo Simulation") )

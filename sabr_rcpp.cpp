@@ -294,7 +294,7 @@ double SABR(const double f, const double K) // f is price and K is strike
   double testB; 
 for(int i = 0; i <= 1; i += .001)
   {
-    testB = log10(alpha) - (1-i)*log10(f)
+    testB = log10(alpha) - (1-i)*log10(f);
 
     if(fabs(testB - log10(alpha)) < .01)
     {
